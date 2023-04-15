@@ -1,0 +1,5 @@
+theme "solarized-dark"
+simplified_ui true
+pane_frames false
+on_force_close "detach"
+copy_on_select false

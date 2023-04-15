@@ -1,0 +1,4 @@
+theme = "one_dark_forest"
+
+[editor]
+true-color = true
