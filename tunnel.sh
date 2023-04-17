@@ -17,6 +17,7 @@ for l in $(vagrant ssh-config); do
   v=$(echo $c | cut -d' ' -f 2)
   declare $k=$v
 done
+unset IFS
 
 echo "opening tunnel ${HostName}:${TUNNEL_PORT}"
 
@@ -24,9 +25,10 @@ ssh -N \
     -L ${TUNNEL_PORT}:${HostName}:${TUNNEL_PORT} \
     -p ${Port} \
     -i ${IdentityFile} \
-    -o UserKnownHostsFile=${UserKnownHostsFile} \
-    -o StrictHostKeyChecking=${StrictHostKeyChecking} \
-    -o PasswordAuthentication=${PasswordAuthentication} \
+    -o Compression=yes \
     -o IdentitiesOnly=${IdentitiesOnly} \
     -o LogLevel=${LogLevel} \
+    -o StrictHostKeyChecking=${StrictHostKeyChecking} \
+    -o UserKnownHostsFile=${UserKnownHostsFile} \
     ${User}@${HostName}
+
