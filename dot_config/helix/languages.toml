@@ -1,3 +1,7 @@
 [[language]]
 name = "ruby"
 file-types = ["rb", "rake", "rakefile", "irb", "gemfile", "gemspec", "Rakefile", "Gemfile", "rabl", "jbuilder", "jb", "Podfile", "podspec", "Vagrantfile"]
+
+[[language]]
+name = "html"
+file-types = ["html", "tpl"]
