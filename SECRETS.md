@@ -19,13 +19,15 @@ Host *
 
 ```
 [user]
-    username = guapodero
+    name = Daniel James Baumann
     email = 568034+guapodero@users.noreply.github.com
     signingkey = ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIA3V9SNCgRlA4meWgvjagvSqSBmIi+wkUJJT1i4ajvIH
 [gpg]
     format = ssh
 [commit]
     gpgsign = true
+[core]
+    editor = /usr/bin/helix
 ```
 
 https://1password.community/discussion/135317/how-do-i-use-the-1password-ssh-agent-without-installing-the-1password-gui
