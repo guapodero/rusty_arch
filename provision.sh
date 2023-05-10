@@ -21,7 +21,7 @@ sed -i -E "/#IgnorePkg/a IgnorePkg = linux" /etc/pacman.conf  # don't upgrade de
 
 # revert vbox guest additions to 6.1 to match host
 pacman -U --noconfirm --disable-download-timeout https://archive.archlinux.org/packages/v/virtualbox-guest-utils-nox/virtualbox-guest-utils-nox-6.1.40-1-x86_64.pkg.tar.zst
-sed -i -E "/#IgnorePkg/a IgnorePkg = virtualbox-guest-utils-nox-*" /etc/pacman.conf
+sed -i -E "/#IgnorePkg/a IgnorePkg = virtualbox-guest-utils-nox" /etc/pacman.conf
 
 # prepare uid,gid mappings for sshfs so that mounted directories appear to be owned by the vagrant user
 mkdir -p /etc/sshfs
