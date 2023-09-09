@@ -53,4 +53,6 @@ ZELLIJ_AUTO_ATTACH=true
 eval '$(zellij setup --generate-auto-start zsh)'
 path+=("/home/vagrant/.cargo/bin")
 export PATH
+
+source ~/.my_profile.zsh
 eos

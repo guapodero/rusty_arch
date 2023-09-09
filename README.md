@@ -109,5 +109,17 @@ Drawbacks
 - generic cloud hosting
 - AArch64 on QEMU
 
+## Known Issues
+ssh agent socket is unstable
+workaround: reload vm
+
+sshfs mount is unstable
+workaround: unmount and remount sshs
+
+unable to use podman
+> Error: kernel does not support overlay fs:
+> 'overlay' is not supported over btrfs at "/home/vagrant/.local/share/containers/storage/overlay": backing file system is unsupported for this graph driver
+no known workaround
+
 ## Related Work
 - [rust-sandbox](https://github.com/jameslmartin/rust-sandbox) is similar in intent but more opinionated
