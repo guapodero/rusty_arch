@@ -1,0 +1,36 @@
+# https://github.com/lima-vm/lima/blob/044cb12a43af464b379dc15bf833eea8cadcfb56/examples/default.yaml
+# https://github.com/lima-vm/lima/blob/044cb12a43af464b379dc15bf833eea8cadcfb56/examples/archlinux.yaml
+# https://github.com/lima-vm/lima/blob/044cb12a43af464b379dc15bf833eea8cadcfb56/pkg/limayaml/limayaml.go
+# This template requires Lima v0.7.0 or later
+
+vmType: "qemu"
+arch: "x86_64"
+cpus: 2
+memory: "4GiB"
+
+images:
+# Try to use yyyyMMdd.REV image if available. Note that yyyyMMdd.REV will be removed after several months.
+- location: "https://geo.mirror.pkgbuild.com/images/v20230715.165098/Arch-Linux-x86_64-cloudimg-20230715.165098.qcow2"
+  arch: "x86_64"
+  digest: "sha256:273cd382e6c717c89888e93e69187629e03ce26955a0bf53ff8d49e8ce2f2f55"
+# Fallback to the latest release image.
+# Hint: run `limactl prune` to invalidate the cache
+- location: "https://geo.mirror.pkgbuild.com/images/latest/Arch-Linux-x86_64-cloudimg.qcow2"
+  arch: "x86_64"
+
+mounts:
+- location: "~"
+- location: "/tmp/lima"
+  writable: true
+- location: "/tmp/workdir" # updated in lima_session.sh
+  writable: true
+  9p:
+    cache: none
+
+mountType: "9p"
+
+ssh:
+  forwardAgent: true
+
+firmware:
+  legacyBIOS: true

@@ -1,0 +1,18 @@
+[init]
+    defaultBranch = main
+[core]
+    editor = /usr/bin/helix
+[user]
+    name = Daniel James Baumann
+    email = 568034+guapodero@users.noreply.github.com
+    signingkey = ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIA3V9SNCgRlA4meWgvjagvSqSBmIi+wkUJJT1i4ajvIH
+[commit]
+    gpgsign = true
+[gpg]
+    format = ssh
+[pager]
+    diff = riff
+    show = riff
+    log = riff
+[interactive]
+    diffFilter = riff
