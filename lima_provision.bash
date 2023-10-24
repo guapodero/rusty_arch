@@ -1,12 +1,14 @@
 set -eux -o pipefail
 echo "HOST_TZ: $HOST_TZ"
-echo "HOST_WORK_DIR: $HOST_WORK_DIR"
+echo "HOST_WORKDIR: $HOST_WORKDIR"
 echo "USERNAME: $USERNAME"
 echo "HOME_DIR: $HOME_DIR"
 
 # environment vars
-echo "HOST_WORK_DIR=$HOST_WORK_DIR" >> /etc/environment
+echo "HOST_WORKDIR=$HOST_WORKDIR" >> /etc/environment
 echo "XDG_CONFIG_HOME=\${HOME}/.config" >> $HOME_DIR/.zshenv
+
+hostnamectl set-hostname "${HOSTNAME#"lima-"}"
 
 # pacman
 ln -sf /usr/share/zoneinfo/$HOST_TZ /etc/localtime
