@@ -27,7 +27,7 @@ grub-mkconfig -o /boot/grub/grub.cfg
 sed -i -E "/#IgnorePkg/a IgnorePkg = linux" /etc/pacman.conf  # don't upgrade default kernel anymore
 
 # shell
-pacman -S --noconfirm git zsh starship lsd ripgrep bat
+pacman -S --noconfirm git zsh starship lsd ripgrep bat skim # start_zellij.zsh depends on skim
 sudo -k chsh -s /usr/bin/zsh $USERNAME
 sudo -u $USERNAME sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended # depends on git
 cat <<'eos' >> $HOME_DIR/.zshrc
@@ -42,10 +42,12 @@ sudo -u $USERNAME rustup default stable
 sudo -u $USERNAME cargo install cross --git https://github.com/cross-rs/cross # depends on podman
 cat <<'eos' >> $HOME_DIR/.zshrc
 
-ZELLIJ_AUTO_ATTACH=true
-eval "$(zellij setup --generate-auto-start zsh)"
 path+=("$HOME/.cargo/bin")
 export PATH
+
+ZELLIJ_AUTO_ATTACH=true
+ZELLIJ_AUTO_EXIT=true
+source $XDG_CONFIG_HOME/zsh/start_zellij.zsh
 
 [ -e $XDG_CONFIG_HOME/zsh/my_profile.zsh ] && source $XDG_CONFIG_HOME/zsh/my_profile.zsh
 eos

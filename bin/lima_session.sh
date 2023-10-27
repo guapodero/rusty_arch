@@ -1,27 +1,36 @@
 #!/bin/sh
 set -e
 
-if [[ "$1" == "-h" || "$1" == "--help" ]]; then
-    echo "usage: $0 [vm_name] (default: arch)" >&2
-    exit 0
+if [[ $# -lt 1 || $# -gt 2 || "$1" == "-h" || "$1" == "--help" ]]; then
+    echo "usage: $0 vm_name [session_name | .] # . = force new session" >&2
+    exit 1
 fi
 
-vm_name=${1:-arch}
+qemu-system-x86_64 --version || (>&2 echo "QEMU required"; false)
+limactl -h > /dev/null || (>&2 echo "lima-vm required"; false)
 
 script_path="$(cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P)"
 
 export HOST_TZ="$(readlink /etc/localtime | sed 's#/var/db/timezone/zoneinfo/##g')"
 export HOST_WORKDIR="$(dirname ${script_path})" # this script is assumed to be in a subdirectory of workdir
 
-qemu-system-x86_64 --version || (>&2 echo "QEMU required"; false)
-limactl -h > /dev/null || (>&2 echo "lima-vm required"; false)
+vm_name=$1
+if [ $# -eq 2 ]; then
+    if [[ $2 == "." ]]; then
+        touch /tmp/lima/zellij_session_name
+    else
+        echo $2 > /tmp/lima/zellij_session_name
+    fi
+fi
 
 vm_status() {
     limactl list | tr -s ' ' | cut -d ' ' -f 1,2
 }
 
 (vm_status | grep -E "^$vm_name \w+$" > /dev/null) || (
-    echo "creating new vm $vm_name"
+    read -n 1 -s -p "create new vm $vm_name? " confirm
+    [[ "$confirm" == "" || "$confirm" == [Yy]* ]] || exit 1
+    echo # newline
 
     limactl create \
         --name $vm_name \
