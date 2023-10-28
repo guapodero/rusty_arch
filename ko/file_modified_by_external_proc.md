@@ -14,10 +14,14 @@ It might have to do with how system time is managed.
 https://wiki.archlinux.org/title/System_time
 https://sophiedogg.com/kvm-clocks-and-time-zone-settings/
 
+A deep dive into the source appears to be in order here.
+https://github.com/helix-editor/helix/blob/f992c3b5972dbe2432ceb55bc8d47fed912f88bf/helix-view/src/document.rs#L891
+
+## Discussion
+Helix uses `std::time::SystemTime` to track the initial modification time when the file is loaded or reloaded. Later
+this is compared to the file modification time provided by `tokio::fs::metadata` which uses the `stat` system call.
+
 ## Workarounds
 `w!`
 
 Don't use Helix in mounted directories.
-
-## Resolution
-Disable caching on writable filesystem mounts.
