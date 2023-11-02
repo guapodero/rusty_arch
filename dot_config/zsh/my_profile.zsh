@@ -15,5 +15,3 @@ gh_clone () {
     git clone git@github.com:$1.git
     cd ${1##*/}
 }
-
-cd ~/scratch

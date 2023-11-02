@@ -21,8 +21,6 @@ Relatively new, but it's an improvement over Vagrant. Some advantages:
 - Creates QEMU virtual machines, which integrate more directly with CPUs than
   [VirtualBox 6](https://www.virtualbox.org/ticket/14217).
 
-Lima 1.0 is coming soon with breaking changes:
-https://github.com/lima-vm/lima/milestone/26
 
 ### Requirements
 - frequent offline use
@@ -33,26 +31,28 @@ https://github.com/lima-vm/lima/milestone/26
 ## Base System
 
 - [LTS kernel](https://archlinux.org/packages/core/x86_64/linux-lts/)
-- [paru](https://github.com/Morganamilo/paru)
+- [paru](https://github.com/Morganamilo/paru) AUR helper
 - [git](https://en.wikipedia.org/wiki/Git)
 - [zsh](https://en.wikipedia.org/wiki/Z_shell)
-- [ohmyzsh](https://ohmyz.sh/)
-- [starship](https://starship.rs/)
-- [lsd](https://crates.io/crates/lsd)
-- [helix](https://helix-editor.com/)
-- [zellij](https://zellij.dev/)
-- [ripgrep](https://crates.io/crates/ripgrep)
-- [riff](https://github.com/walles/riff/)
-- [bat](https://github.com/sharkdp/bat)
-- [skim](https://github.com/lotabout/skim)
-- [rustup](https://rust-lang.github.io/rustup/)
-- [rust-analyzer](https://blog.rust-lang.org/2022/02/21/rust-analyzer-joins-rust-org.html)
-- [clang](https://clang.llvm.org/)
-- [podman](https://podman.io/)
-- [cross-rs](https://github.com/cross-rs/cross)
-- [cargo-make](https://sagiegurari.github.io/cargo-make/)
+- [ohmyzsh](https://ohmyz.sh/) zsh configuration framework
+- [starship](https://starship.rs/) easily customizable shell prompt
+- [lsd](https://crates.io/crates/lsd) colorized and configurable `ls` replacement
+- [helix](https://helix-editor.com/) modal editor
+- [zellij](https://zellij.dev/) terminal workspace
+- [ripgrep](https://crates.io/crates/ripgrep) fast and easy `grep` replacement
+- [riff](https://github.com/walles/riff/) more readable `diff` formatter
+- [bat](https://github.com/sharkdp/bat) `cat` replacement
+- [skim](https://github.com/lotabout/skim) fuzzy finder
+- [rustup](https://rust-lang.github.io/rustup/) stable toolchain
+- [rust-analyzer](https://blog.rust-lang.org/2022/02/21/rust-analyzer-joins-rust-org.html) LSP server
+- [clang](https://clang.llvm.org/) LSP server
+- [podman](https://podman.io/) container runtime
+- [cross-rs](https://github.com/cross-rs/cross) simplified cross-compilation
+- [cargo-binstall](https://github.com/cargo-bins/cargo-binstall) binary installer
+- [cargo-make](https://sagiegurari.github.io/cargo-make/) build tool and more
+- [httplz](https://crates.io/crates/https) static file server
 
-Offline docs at http://localhost:9306
+Offline Rust documentation at http://localhost:9306
 
 ## Usage
 `bin/lima_session.sh vm_name [session_name | .] # . = force new session`
@@ -74,5 +74,9 @@ key_bindings:
   - { key: W,      mods: Command,            action: None             }
 ```
 
-### Future Improvements
-- ability to start a VM while offline https://github.com/lima-vm/lima/issues/1422
+### Known Issues
+Unable to start a VM while offline.
+https://github.com/lima-vm/lima/issues/1422
+
+Lima 1.0 is coming soon with breaking changes.
+https://github.com/lima-vm/lima/milestone/26
