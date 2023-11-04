@@ -17,6 +17,7 @@ pacman-key --init
 pacman-key --populate
 pacman -Sy --noconfirm archlinux-keyring
 pacman -Syu --noconfirm --ignore linux
+sed -i "s/#Color/Color/" /etc/pacman.conf
 
 # LTS kernel
 pacman -S --noconfirm linux-lts
@@ -33,43 +34,45 @@ sudo -u $USERNAME \
     sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" \
     --unattended # depends on git
 cat <<'eos' >> $HOME_DIR/.zshrc
-
 eval "$(starship init zsh)"
 alias ls='lsd'
 eos
 
 # dev
-pacman -S --noconfirm rustup rust-analyzer clang helix zellij cargo-make podman httplz
+pacman -S --noconfirm base-devel rustup rust-analyzer clang helix zellij cargo-make podman httplz
 sudo -u $USERNAME rustup default stable
 curl -L --proto '=https' --tlsv1.2 -sSf \
     https://raw.githubusercontent.com/cargo-bins/cargo-binstall/main/install-from-binstall-release.sh | bash
 sudo -u $USERNAME cargo binstall --no-confirm --no-discover-github-token cross
 cat <<'eos' >> $HOME_DIR/.zshrc
-
 path+=("$HOME/.cargo/bin")
 export PATH
+alias hx='helix'
+alias shx='sudo /usr/bin/helix -c $XDG_CONFIG_HOME/helix/config.toml'
+eos
 
+#
+# USER SPACE
+#
+chown -R $USERNAME:$USERNAME $HOME_DIR
+su $USERNAME
+
+# start zellij once on login
+cat <<'eos' >> $HOME/.zprofile
 ZELLIJ_AUTO_ATTACH=true
 ZELLIJ_AUTO_EXIT=true
 source $XDG_CONFIG_HOME/zsh/start_zellij.zsh
-
-[ -e $XDG_CONFIG_HOME/zsh/my_profile.zsh ] && source $XDG_CONFIG_HOME/zsh/my_profile.zsh
 eos
 
-# paru AUR helper (depends on cargo)
-pacman -S --noconfirm base-devel
-su $USERNAME <<'eos'
+# paru AUR helper (depends on base-devel and cargo)
 cd /tmp
 git clone https://aur.archlinux.org/paru.git
 cd paru
 makepkg -si --noconfirm
-eos
 
-sudo -u $USERNAME paru -S --noconfirm --skipreview riffdiff
+paru -S --noconfirm --skipreview riffdiff
 
-# serve local documentation
-DOCS_DIR=$(sudo -u $USERNAME rustup doc --path | xargs dirname)
-cat <<eos > $HOME_DIR/serve_docs.sh
+cat <<'eos' > $HOME/serve_docs.sh
 #!/bin/sh
 
 PID="$(ss -tnlp | tr -s ' ' | cut -d ' ' -f 1,4,6 \
@@ -77,11 +80,9 @@ PID="$(ss -tnlp | tr -s ' ' | cut -d ' ' -f 1,4,6 \
 
 if [[ -z "$PID" ]]; then
     echo "http://localhost:9306"
-    httplz -p 9306 $DOCS_DIR &
+    httplz -p 9306 $(rustup doc --path | xargs dirname) > /dev/null &
 else
     echo $PID
 fi
 eos
-chmod 755 $HOME_DIR/serve_docs.sh
-
-chown -R $USERNAME:$USERNAME $HOME_DIR
+chmod 755 $HOME/bin/serve_docs.sh
