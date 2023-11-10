@@ -80,3 +80,6 @@ https://github.com/lima-vm/lima/issues/1422
 
 Lima 1.0 is coming soon with breaking changes.
 https://github.com/lima-vm/lima/milestone/26
+
+### Known Obstacles
+Tracked in the [ko](ko/) directory. These are being passively worked on.
