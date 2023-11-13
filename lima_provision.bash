@@ -27,52 +27,48 @@ sed -i -E "s/^#?GRUB_DISABLE_SUBMENU=.*/GRUB_DISABLE_SUBMENU=y/" /etc/default/gr
 grub-mkconfig -o /boot/grub/grub.cfg
 sed -i -E "/#IgnorePkg/a IgnorePkg = linux" /etc/pacman.conf  # don't upgrade default kernel anymore
 
-# shell
-pacman -S --noconfirm git zsh starship lsd ripgrep bat skim # start_zellij.zsh depends on skim
+pacman -S --noconfirm \
+    git zsh starship \
+    base-devel rustup rust-analyzer clang \
+    zellij lsd ripgrep bat skim helix \
+    cargo-make podman cross cargo-binstall httplz
+
 sudo -k chsh -s /usr/bin/zsh $USERNAME
+
 sudo -u $USERNAME \
     sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" \
-    --unattended # depends on git
-cat <<'eos' >> $HOME_DIR/.zshrc
+    --unattended
+
+sudo -u $USERNAME cat <<'eos' >> $HOME/.zshrc
 eval "$(starship init zsh)"
 alias ls='lsd'
-eos
-
-# dev
-pacman -S --noconfirm base-devel rustup rust-analyzer clang helix zellij cargo-make podman httplz
-sudo -u $USERNAME rustup default stable
-curl -L --proto '=https' --tlsv1.2 -sSf \
-    https://raw.githubusercontent.com/cargo-bins/cargo-binstall/main/install-from-binstall-release.sh | bash
-sudo -u $USERNAME cargo binstall --no-confirm --no-discover-github-token cross
-cat <<'eos' >> $HOME_DIR/.zshrc
-path+=("$HOME/.cargo/bin")
-export PATH
 alias hx='helix'
 alias shx='sudo /usr/bin/helix -c $XDG_CONFIG_HOME/helix/config.toml'
+path+=("$HOME/.cargo/bin")
+export PATH
 eos
 
-#
-# USER SPACE
-#
-chown -R $USERNAME:$USERNAME $HOME_DIR
-su $USERNAME
-
-# start zellij once on login
-cat <<'eos' >> $HOME/.zprofile
+# start_zellij.zsh (depends on skim)
+sudo -u $USERNAME cat <<'eos' >> $HOME/.zprofile
 ZELLIJ_AUTO_ATTACH=true
 ZELLIJ_AUTO_EXIT=true
 source $XDG_CONFIG_HOME/zsh/start_zellij.zsh
 eos
 
+sudo -u $USERNAME rustup default stable
+
 # paru AUR helper (depends on base-devel and cargo)
+su $USERNAME <<'eos'
 cd /tmp
 git clone https://aur.archlinux.org/paru.git
 cd paru
 makepkg -si --noconfirm
+eos
 
-paru -S --noconfirm --skipreview riffdiff
+sudo -u $USERNAME paru -S --noconfirm --skipreview riffdiff
 
-cat <<'eos' > $HOME/serve_docs.sh
+# rust books and documentation
+sudo -u $USERNAME cat <<'eos' > $HOME/serve_docs.sh
 #!/bin/sh
 
 PID="$(ss -tnlp | tr -s ' ' | cut -d ' ' -f 1,4,6 \
@@ -85,4 +81,4 @@ else
     echo $PID
 fi
 eos
-chmod 755 $HOME/bin/serve_docs.sh
+chmod 755 $HOME/serve_docs.sh

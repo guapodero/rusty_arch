@@ -27,10 +27,14 @@ vm_status() {
     limactl list | tr -s ' ' | cut -d ' ' -f 1,2
 }
 
-(vm_status | grep -E "^$vm_name \w+$" > /dev/null) || (
-    read -n 1 -s -p "create new vm $vm_name? " confirm
+confirm() {
+    read -n 1 -s -p "$1 " confirm
     [[ "$confirm" == "" || "$confirm" == [Yy]* ]] || exit 1
     echo # newline
+}
+
+(vm_status | grep -E "^$vm_name \w+$" > /dev/null) || (
+    confirm "create VM $vm_name?"
 
     limactl create \
         --name $vm_name \
@@ -58,10 +62,8 @@ eos
 )
 
 (vm_status | grep "$vm_name Running" > /dev/null) || (
-    echo "starting vm $vm_name"
-
+    confirm "resume VM $vm_name?"
     limactl start $vm_name
-    limactl shell $vm_name <<< "~/serve_docs.sh"
 )
 
-limactl shell $vm_name
+limactl shell --debug $vm_name
