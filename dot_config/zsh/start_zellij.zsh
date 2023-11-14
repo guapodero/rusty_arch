@@ -5,7 +5,7 @@
 
 if [[ -z "$ZELLIJ" ]]; then
     if [[ "$ZELLIJ_AUTO_ATTACH" == "true" ]]; then
-        ZJ_SESSIONS=$(zellij list-sessions)
+        ZJ_SESSIONS=$(zellij list-sessions -n)
         NO_SESSIONS=$(echo "${ZJ_SESSIONS}" | wc -l)
         
         if [ -f /tmp/lima/zellij_session_name ]; then
@@ -27,7 +27,7 @@ if [[ -z "$ZELLIJ" ]]; then
             # List current sessions, attach to a running session, or create a new one
             if [ "${NO_SESSIONS}" -ge 2 ]; then
                 zellij attach \
-                "$(echo "${ZJ_SESSIONS}" | sk)"
+                "$(echo "${ZJ_SESSIONS}" | sk | cut -d ' ' -f 1)"
             else
                zellij attach -c
             fi
