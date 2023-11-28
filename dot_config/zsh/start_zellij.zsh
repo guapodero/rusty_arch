@@ -3,9 +3,9 @@
 # based on `zellij setup --generate-auto-start zsh`
 # https://zellij.dev/documentation/integration.html#autostart-on-shell-creation
 
-if [[ -z "$ZELLIJ" ]]; then
+if [[ -z "$ZELLIJ" && $(zellij setup --check) ]]; then
     if [[ "$ZELLIJ_AUTO_ATTACH" == "true" ]]; then
-        ZJ_SESSIONS=$(zellij list-sessions -n)
+        ZJ_SESSIONS=$(zellij list-sessions)
         NO_SESSIONS=$(echo "${ZJ_SESSIONS}" | wc -l)
         
         if [ -f /tmp/lima/zellij_session_name ]; then
@@ -27,7 +27,7 @@ if [[ -z "$ZELLIJ" ]]; then
             # List current sessions, attach to a running session, or create a new one
             if [ "${NO_SESSIONS}" -ge 2 ]; then
                 zellij attach \
-                "$(echo "${ZJ_SESSIONS}" | sk | cut -d ' ' -f 1)"
+                "$(echo "${ZJ_SESSIONS}" | sk --ansi | cut -d ' ' -f 1)"
             else
                zellij attach -c
             fi

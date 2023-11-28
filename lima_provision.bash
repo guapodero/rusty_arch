@@ -4,10 +4,7 @@ echo "HOST_WORKDIR: $HOST_WORKDIR"
 echo "USERNAME: $USERNAME"
 echo "HOME_DIR: $HOME_DIR"
 
-# environment vars
 echo "HOST_WORKDIR=$HOST_WORKDIR" >> /etc/environment
-echo "XDG_CONFIG_HOME=\${HOME}/.config" >> $HOME_DIR/.zshenv
-
 hostnamectl set-hostname "${HOSTNAME#"lima-"}"
 
 # pacman
@@ -39,18 +36,25 @@ sudo -u $USERNAME \
     sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" \
     --unattended
 
-sudo -u $USERNAME cat <<'eos' >> $HOME/.zshrc
-eval "$(starship init zsh)"
+# all shells
+sudo -u $USERNAME cat <<'eos' >> $HOME_DIR/.zshenv
+XDG_CONFIG_HOME=$HOME/.config
+path+=("$HOME/.cargo/bin")
+export PATH
+
 alias ls='lsd'
 alias hx='helix'
 alias shx='sudo /usr/bin/helix -c $XDG_CONFIG_HOME/helix/config.toml'
 alias dhx="helix -c <(sed '/\[editor.lsp\]/a enable=false' $XDG_CONFIG_HOME/helix/config.toml)"
-path+=("$HOME/.cargo/bin")
-export PATH
 eos
 
-# start_zellij.zsh (depends on skim)
-sudo -u $USERNAME cat <<'eos' >> $HOME/.zprofile
+# interactive shells
+sudo -u $USERNAME cat <<'eos' >> $HOME_DIR/.zshrc
+eval "$(starship init zsh)"
+eos
+
+# login shells
+sudo -u $USERNAME cat <<'eos' >> $HOME_DIR/.zprofile
 ZELLIJ_AUTO_ATTACH=true
 ZELLIJ_AUTO_EXIT=true
 source $XDG_CONFIG_HOME/zsh/start_zellij.zsh
@@ -69,7 +73,7 @@ eos
 sudo -u $USERNAME paru -S --noconfirm --skipreview riffdiff
 
 # rust books and documentation
-sudo -u $USERNAME cat <<'eos' > $HOME/serve_docs.sh
+sudo -u $USERNAME cat <<'eos' > $HOME_DIR/serve_docs.sh
 #!/bin/sh
 
 PID="$(ss -tnlp | tr -s ' ' | cut -d ' ' -f 1,4,6 \
@@ -82,4 +86,4 @@ else
     echo $PID
 fi
 eos
-chmod 755 $HOME/serve_docs.sh
+chmod 755 $HOME_DIR/serve_docs.sh

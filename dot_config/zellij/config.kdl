@@ -3,3 +3,6 @@ simplified_ui true
 pane_frames false
 on_force_close "detach"
 copy_on_select false
+
+// https://github.com/zellij-org/zellij/issues/2959
+session_serialization false

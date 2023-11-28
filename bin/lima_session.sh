@@ -66,4 +66,4 @@ eos
     limactl start $vm_name
 )
 
-limactl shell --debug $vm_name
+limactl shell --debug --log-level debug $vm_name

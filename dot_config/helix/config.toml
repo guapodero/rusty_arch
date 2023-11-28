@@ -28,7 +28,6 @@ left = ["mode", "spinner", "version-control", "file-name"]
 [keys.normal]
 "A-," = "goto_previous_buffer"
 "A-." = "goto_next_buffer"
-
 A-x = "extend_to_line_bounds"
 X = ["extend_line_up", "extend_to_line_bounds"]
 

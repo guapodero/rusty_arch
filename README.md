@@ -21,9 +21,8 @@ Relatively new, but it's an improvement over Vagrant. Some advantages:
 - Creates QEMU virtual machines, which integrate more directly with CPUs than
   [VirtualBox 6](https://www.virtualbox.org/ticket/14217).
 
-
 ### Requirements
-- frequent offline use
+- frequent offline use (not supported yet)
 - x86-64
 - MacOS Catalina
 - no Homebrew or Xcode
@@ -74,8 +73,14 @@ key_bindings:
   - { key: W,      mods: Command,            action: None             }
 ```
 
+### Example
+```
+bin/lima_session.sh arch rust
+gh_clone guapodero/pulso && rg_open TODO
+```
+
 ### Known Issues
-Unable to start a VM while offline.
+Unable to start or ssh to a VM while offline.
 https://github.com/lima-vm/lima/issues/1422
 
 Lima 1.0 is coming soon with breaking changes.

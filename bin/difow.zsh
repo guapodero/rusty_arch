@@ -1,12 +1,20 @@
 #!/bin/zsh
 
-POSITIONAL_ARGS=()
-IGNORE_PATTERNS=("*/target/*" "*/.DS_Store")
+EXCLUDE_NAMES=(target/ .git/ .DS_Store)
 
 while [[ $# -gt 0 ]]; do
     case $1 in
-        -i|--ignore)
-            IGNORE_PATTERNS+=("$2")
+        --exclude)
+            EXCLUDE_NAMES+=("$2")
+            shift # past argument
+            shift # past value
+            ;;
+        --exclude-from)
+            if ! [[ -r "$2" ]]; then
+                >&2 echo "$2 is not readable"
+                exit 1
+            fi
+	          EXCLUDE_NAMES+=($(cat $2))
             shift # past argument
             shift # past value
             ;;
@@ -24,16 +32,10 @@ done
 set -- "${POSITIONAL_ARGS[@]}" # restore positional parameters
 
 if [[ $# -ne 2 ]]; then
-    >&2 echo "usage: $0 [(-i | --ignore) glob] SRC DST"
+    >&2 echo "usage: $0 [--exclude filename | dirname/] [--exclude-from file of excludes] SRC DST"
     >&2 echo ""
-    >&2 echo "backup files from SRC to DST"
-    >&2 echo "show diff and wait for approval"
-    exit 1
-fi
-
-rsync --version 2> /dev/null | head -1 | grep rsync
-if [[ $? -ne 0 ]]; then
-    >&2 echo "rsync is required" # rsync is ubiquitous
+    >&2 echo "synchronize a file tree from SRC to DST"
+    >&2 echo "show differences and wait for approval"
     exit 1
 fi
 
@@ -44,23 +46,54 @@ if ! [[ -d $SRC && -r $SRC ]]; then
     exit 1
 fi
 
-echo "$(tput setaf 1)SRC: ${SRC}\n$(tput setaf 2)DST: ${DST}\n$(tput sgr0)"
-
-FIND_FILTER=""
-for pattern in "${IGNORE_PATTERNS[@]}"; do
-    FIND_FILTER+=("-not -path $pattern")
+for name in "${EXCLUDE_NAMES[@]}"; do
+    if [[ "${name:(-1)}" == "/" ]]; then
+        find_filter+=("-not -path */$name*")
+    else
+        find_filter+=("-not -path */$name")
+    fi
 done
 
 sha_tree() {
-    find $1 -not -path "*/.git/*" ${(z)FIND_FILTER} \
+    find $1 ${(z)find_filter} \
     | xargs -L 1 bash -c 'if ! [ -d $0 ] ; then sha1sum "$0"; fi' \
     | sed "s#$1##" \
     | sort -k 2
 }
 
-diff --color <(sha_tree $DST) <(sha_tree $SRC)
+diff <(sha_tree $DST) <(sha_tree $SRC) | while read line; do
+    file=$(echo $line | tr -s ' ' | cut -d ' ' -f 3)
+    case "$(echo $line | head -c 1)" in
+        "<") rem+=($file) ;;
+        ">") add+=($file) ;;
+    esac
+done
 
-if [[ $? -eq 0 ]]; then
+for file in "${rem[@]}"; do
+    if [[ "${add[@]}" =~ ".*$file.*" ]]; then
+        cha+=($file)
+        rem=(${rem/$file/})
+        add=(${add/$file/})
+    fi
+done
+
+all_sorted="$(echo "${rem[@]} ${add[@]} ${cha[@]}" | tr -s ' ' '\n' | sort)"
+
+for file in $(echo $all_sorted); do
+    note=""
+    if [[ "${rem[@]}" =~ ".*$file.*" ]]; then echo -n "$(tput setaf 1)-";
+    elif [[ "${add[@]}" =~ ".*$file.*" ]]; then echo -n "$(tput setaf 2)+";
+    elif [[ "${cha[@]}" =~ ".*$file.*" ]]; then
+        echo -n "$(tput setaf 3)~"
+        if [[ $(stat -c %Y $SRC$file) -lt $(stat -c %Y $DST$file) ]]; then
+            note=" (excluded: newer in $DST)"
+        fi
+    fi
+    echo " $file$note"
+done
+tput sgr0
+
+if [[ -z "$all_sorted" ]]; then
     echo "no differences detected"
     exit 0
 fi
@@ -69,12 +102,23 @@ echo "continue with sync? (includes .git)"
 read confirm
 [[ "$confirm" == "" || "$confirm" == [Yy]* ]] || exit 1
 
-RSYNC_FILTER=""
-for pattern in "${IGNORE_PATTERNS[@]}"; do
-    # convert patterns like */target/* to target for rsync
-    pattern=${pattern##\*/} # remove */ from start
-    pattern=${pattern%%/\*} # remove /* from end
-    RSYNC_FILTER+=("--exclude $pattern")
-done
+if [[ ! -z "$rem" ]]; then
+    sh -xc "rm --recursive $(echo ${rem/#/$DST})"
+fi
 
-rsync -r --delete --out-format="%i %n" ${(z)RSYNC_FILTER} $SRC/ $DST | grep -v ".git/*"
+if [[ ! -z "$add" ]]; then
+    for file in ${add[*]}; do
+        sh -xc "cp --no-dereference --preserve=all $SRC$file $DST$file"
+    done
+fi
+
+if [[ ! -z "$cha" ]]; then
+    for file in ${cha[*]}; do
+        sh -xc "cp --update --no-dereference --preserve=all $SRC$file $DST$file"
+    done
+fi
+
+for git_dir in $(find $SRC -name .git -type d -prune | sed "s#^$SRC##"); do
+    mkdir -p $DST$git_dir
+    sh -xc "cp --update --archive $SRC$git_dir $DST$git_dir"
+done
