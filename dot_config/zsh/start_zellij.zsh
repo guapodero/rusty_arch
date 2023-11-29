@@ -1,7 +1,6 @@
 #!/bin/zsh
 
-# based on `zellij setup --generate-auto-start zsh`
-# https://zellij.dev/documentation/integration.html#autostart-on-shell-creation
+alias remove_ansi="sed -e 's/\x1b\[[0-9;]*m//g'"
 
 if [[ -z "$ZELLIJ" && $(zellij setup --check) ]]; then
     if [[ "$ZELLIJ_AUTO_ATTACH" == "true" ]]; then
@@ -17,7 +16,7 @@ if [[ -z "$ZELLIJ" && $(zellij setup --check) ]]; then
                 # use the provided session name
                 SESSION_NAME=$(cut -d ' ' -f 1 /tmp/lima/zellij_session_name)
                 rm /tmp/lima/zellij_session_name
-                if [[ " ${ZJ_SESSIONS//$'\n'/ } " =~ " $SESSION_NAME " ]]; then
+                if [[ "$(echo "${ZJ_SESSIONS//$'\n'/ }" | remove_ansi)" =~ ".*$SESSION_NAME.*" ]]; then
                     zellij attach $SESSION_NAME
                 else
                     zellij -s $SESSION_NAME
