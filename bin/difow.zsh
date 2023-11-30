@@ -64,8 +64,8 @@ sha_tree() {
 diff <(sha_tree $DST) <(sha_tree $SRC) | while read line; do
     file=$(echo $line | tr -s ' ' | cut -d ' ' -f 3)
     case "$(echo $line | head -c 1)" in
-        "<") rem+=($file) ;;
-        ">") add+=($file) ;;
+        "<") rem+=("╎$file╎") ;;
+        ">") add+=("╎$file╎") ;;
     esac
 done
 
@@ -77,13 +77,13 @@ for file in "${rem[@]}"; do
     fi
 done
 
-all_sorted="$(echo "${rem[@]} ${add[@]} ${cha[@]}" | tr -s ' ' '\n' | sort)"
+all_sorted="$(echo "${rem[@]} ${add[@]} ${cha[@]}" | tr -d '╎' | tr -s ' ' '\n' | sort)"
 
 for file in $(echo $all_sorted); do
     note=""
-    if [[ "${rem[@]}" =~ ".*$file.*" ]]; then echo -n "$(tput setaf 1)-";
-    elif [[ "${add[@]}" =~ ".*$file.*" ]]; then echo -n "$(tput setaf 2)+";
-    elif [[ "${cha[@]}" =~ ".*$file.*" ]]; then
+    if [[ "${rem[@]}" =~ "╎$file╎" ]]; then echo -n "$(tput setaf 1)-";
+    elif [[ "${add[@]}" =~ "╎$file╎" ]]; then echo -n "$(tput setaf 2)+";
+    elif [[ "${cha[@]}" =~ "╎$file╎" ]]; then
         echo -n "$(tput setaf 3)~"
         if [[ $(stat -c %Y $SRC$file) -lt $(stat -c %Y $DST$file) ]]; then
             note=" (excluded: newer in $DST)"
@@ -102,23 +102,28 @@ echo "continue with sync? (includes .git)"
 read confirm
 [[ "$confirm" == "" || "$confirm" == [Yy]* ]] || exit 1
 
-if [[ ! -z "$rem" ]]; then
-    sh -xc "rm --recursive $(echo ${rem/#/$DST})"
+rem_files=(${rem//╎/})
+add_files=(${add//╎/})
+cha_files=(${cha//╎/})
+
+if [[ ! -z "$rem_files" ]]; then
+    sh -xc "rm --recursive $(echo ${rem_files/#/$DST})"
 fi
 
-if [[ ! -z "$add" ]]; then
-    for file in ${add[*]}; do
+if [[ ! -z "$add_files" ]]; then
+    for file in ${add_files[*]}; do
+        sh -xc "mkdir -p $(dirname $DST$file)"
         sh -xc "cp --no-dereference --preserve=all $SRC$file $DST$file"
     done
 fi
 
-if [[ ! -z "$cha" ]]; then
-    for file in ${cha[*]}; do
+if [[ ! -z "$cha_files" ]]; then
+    for file in ${cha_files[*]}; do
         sh -xc "cp --update --no-dereference --preserve=all $SRC$file $DST$file"
     done
 fi
 
 for git_dir in $(find $SRC -name .git -type d -prune | sed "s#^$SRC##"); do
-    mkdir -p $DST$git_dir
+    sh -xc "mkdir -p $DST$git_dir"
     sh -xc "cp --update --archive $SRC$git_dir $DST$git_dir"
 done
