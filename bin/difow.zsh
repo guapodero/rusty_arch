@@ -1,4 +1,4 @@
-#!/bin/zsh
+#!/usr/bin/env zsh
 
 EXCLUDE_NAMES=(target/ .git/ .DS_Store)
 
@@ -55,41 +55,45 @@ for name in "${EXCLUDE_NAMES[@]}"; do
 done
 
 sha_tree() {
-    find $1 ${(z)find_filter} \
-    | xargs -L 1 bash -c 'if ! [ -d $0 ] ; then sha1sum "$0"; fi' \
+    if [[ ! -d $1 ]]; then return 0; fi
+    find $1  \( -type d -name .git \) -o \( ${(z)find_filter} \) \
+    | xargs -L 1 bash -c '
+        if [[ $0 =~ /.git$ ]]; then d=$0; cd $d; echo "$(git rev-parse HEAD) $d";
+        elif [[ ! -d $0 ]]; then sha1sum "$0"; fi
+    ' \
     | sed "s#$1##" \
     | sort -k 2
 }
 
 diff <(sha_tree $DST) <(sha_tree $SRC) | while read line; do
-    file=$(echo $line | tr -s ' ' | cut -d ' ' -f 3)
+    pth=$(echo $line | tr -s ' ' | cut -d ' ' -f 3)
     case "$(echo $line | head -c 1)" in
-        "<") rem+=("╎$file╎") ;;
-        ">") add+=("╎$file╎") ;;
+        "<") rem+=("╎$pth╎") ;;
+        ">") add+=("╎$pth╎") ;;
     esac
 done
 
-for file in "${rem[@]}"; do
-    if [[ "${add[@]}" =~ ".*$file.*" ]]; then
-        cha+=($file)
-        rem=(${rem/$file/})
-        add=(${add/$file/})
+for deli_pth in "${rem[@]}"; do
+    if [[ "${add[@]}" =~ "$deli_pth" ]]; then
+        cha+=($deli_pth)
+        rem=(${rem/$deli_pth/})
+        add=(${add/$deli_pth/})
     fi
 done
 
 all_sorted="$(echo "${rem[@]} ${add[@]} ${cha[@]}" | tr -d '╎' | tr -s ' ' '\n' | sort)"
 
-for file in $(echo $all_sorted); do
+for pth in $(echo $all_sorted); do
     note=""
-    if [[ "${rem[@]}" =~ "╎$file╎" ]]; then echo -n "$(tput setaf 1)-";
-    elif [[ "${add[@]}" =~ "╎$file╎" ]]; then echo -n "$(tput setaf 2)+";
-    elif [[ "${cha[@]}" =~ "╎$file╎" ]]; then
+    if [[ "${rem[@]}" =~ "╎$pth╎" ]]; then echo -n "$(tput setaf 1)-";
+    elif [[ "${add[@]}" =~ "╎$pth╎" ]]; then echo -n "$(tput setaf 2)+";
+    elif [[ "${cha[@]}" =~ "╎$pth╎" ]]; then
         echo -n "$(tput setaf 3)~"
-        if [[ $(stat -c %Y $SRC$file) -lt $(stat -c %Y $DST$file) ]]; then
+        if [[ $(stat -c %Y $SRC$pth) -lt $(stat -c %Y $DST$pth) ]]; then
             note=" (excluded: newer in $DST)"
         fi
     fi
-    echo " $file$note"
+    echo " ${pth##/}$note"
 done
 tput sgr0
 
@@ -98,32 +102,30 @@ if [[ -z "$all_sorted" ]]; then
     exit 0
 fi
 
-echo "continue with sync? (includes .git)"
+echo "continue with sync?"
 read confirm
 [[ "$confirm" == "" || "$confirm" == [Yy]* ]] || exit 1
 
-rem_files=(${rem//╎/})
-add_files=(${add//╎/})
-cha_files=(${cha//╎/})
+rem_pths=(${rem//╎/})
+add_pths=(${add//╎/})
+cha_pths=(${cha//╎/})
 
-if [[ ! -z "$rem_files" ]]; then
-    sh -xc "rm --recursive $(echo ${rem_files/#/$DST})"
+if [[ ! -z "$rem_pths" ]]; then
+    sh -xc "rm --recursive --force $(echo ${rem_pths/#/$DST})"
 fi
 
-if [[ ! -z "$add_files" ]]; then
-    for file in ${add_files[*]}; do
-        sh -xc "mkdir -p $(dirname $DST$file)"
-        sh -xc "cp --no-dereference --preserve=all $SRC$file $DST$file"
+if [[ ! -z "$add_pths" ]]; then
+    for pth in ${add_pths[*]}; do
+        pth_dir=$(dirname $DST$pth)
+        if [[ ! -d $pth_dir ]]; then
+            sh -xc "mkdir -p $pth_dir"
+        fi
+        sh -xc "cp --archive --no-target-directory $SRC$pth $DST$pth"
     done
 fi
 
-if [[ ! -z "$cha_files" ]]; then
-    for file in ${cha_files[*]}; do
-        sh -xc "cp --update --no-dereference --preserve=all $SRC$file $DST$file"
+if [[ ! -z "$cha_pths" ]]; then
+    for pth in ${cha_pths[*]}; do
+        sh -xc "cp --update --archive --no-target-directory $SRC$pth $DST$pth"
     done
 fi
-
-for git_dir in $(find $SRC -name .git -type d -prune | sed "s#^$SRC##"); do
-    sh -xc "mkdir -p $DST$git_dir"
-    sh -xc "cp --update --archive $SRC$git_dir $DST$git_dir"
-done

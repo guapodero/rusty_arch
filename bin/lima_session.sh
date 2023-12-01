@@ -13,6 +13,8 @@ script_path="$(cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P)"
 
 export HOST_TZ="$(readlink /etc/localtime | sed 's#/var/db/timezone/zoneinfo/##g')"
 export HOST_WORKDIR="$(dirname ${script_path})" # this script is assumed to be in a subdirectory of workdir
+export HOST_UID=$(id -u) # assumed to be running this script as a non-root user
+export HOST_GID=$(id -g)
 
 vm_name=$1
 if [ $# -eq 2 ]; then
@@ -46,6 +48,8 @@ confirm() {
     limactl shell $vm_name <<eos
 export HOST_TZ=$HOST_TZ
 export HOST_WORKDIR=$HOST_WORKDIR
+export HOST_UID=$HOST_UID
+export HOST_GID=$HOST_GID
 export USERNAME=\$(whoami)
 export HOSTNAME=\$(cat /etc/hostname)
 export HOME_DIR=/home/\$USERNAME.linux # different than root $HOME

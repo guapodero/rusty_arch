@@ -21,11 +21,10 @@ Relatively new, but it's an improvement over Vagrant. Some advantages:
 - Creates QEMU virtual machines, which integrate more directly with CPUs than
   [VirtualBox 6](https://www.virtualbox.org/ticket/14217).
 
-### Requirements
+### Use Case
+- Intel Mac (MacOS 10.15 Catalina)
+- minimal dependencies (no Homebrew, Xcode, Docker)
 - frequent offline use (not supported yet)
-- x86-64
-- MacOS Catalina
-- no Homebrew or Xcode
 
 ## Base System
 

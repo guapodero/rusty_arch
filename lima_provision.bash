@@ -1,6 +1,8 @@
 set -eux -o pipefail
 echo "HOST_TZ: $HOST_TZ"
 echo "HOST_WORKDIR: $HOST_WORKDIR"
+echo "HOST_UID: $HOST_UID"
+echo "HOST_GID: $HOST_GID"
 echo "USERNAME: $USERNAME"
 echo "HOME_DIR: $HOME_DIR"
 
@@ -22,7 +24,7 @@ sed -i -E "s/^#?GRUB_DEFAULT=.*/GRUB_DEFAULT=saved/" /etc/default/grub
 sed -i -E "s/^#?GRUB_SAVEDEFAULT=.*/GRUB_SAVEDEFAULT=true/" /etc/default/grub
 sed -i -E "s/^#?GRUB_DISABLE_SUBMENU=.*/GRUB_DISABLE_SUBMENU=y/" /etc/default/grub
 grub-mkconfig -o /boot/grub/grub.cfg
-sed -i -E "/#IgnorePkg/a IgnorePkg = linux" /etc/pacman.conf  # don't upgrade default kernel anymore
+sed -i -E "/#IgnorePkg/a IgnorePkg = linux" /etc/pacman.conf
 
 pacman -S --noconfirm \
     git zsh starship \
@@ -31,30 +33,28 @@ pacman -S --noconfirm \
     cargo-make podman cross cargo-binstall httplz
 
 sudo -k chsh -s /usr/bin/zsh $USERNAME
+usermod -u $HOST_UID $USERNAME
+groupmod -g $HOST_GID $USERNAME
 
-sudo -u $USERNAME \
-    sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" \
-    --unattended
+sudo -u $USERNAME sh -c "$(curl -fsSL https://install.ohmyz.sh/)" "" --unattended
 
-# all shells
-sudo -u $USERNAME cat <<'eos' >> $HOME_DIR/.zshenv
+cat <<'eos' >> $HOME_DIR/.zshenv
 XDG_CONFIG_HOME=$HOME/.config
-path+=("$HOME/.cargo/bin")
-export PATH
+DISABLE_LS_COLORS=true # oh-my-zsh will not write over 'ls' alias
 
 alias ls='lsd'
 alias hx='helix'
-alias shx='sudo /usr/bin/helix -c $XDG_CONFIG_HOME/helix/config.toml'
+alias shx="sudo /usr/bin/helix -c $XDG_CONFIG_HOME/helix/config.toml"
 alias dhx="helix -c <(sed '/\[editor.lsp\]/a enable=false' $XDG_CONFIG_HOME/helix/config.toml)"
 eos
 
-# interactive shells
-sudo -u $USERNAME cat <<'eos' >> $HOME_DIR/.zshrc
+cat <<'eos' >> $HOME_DIR/.zshrc
 eval "$(starship init zsh)"
+[ -e $XDG_CONFIG_HOME/zsh/my_profile.zsh ] && source $XDG_CONFIG_HOME/zsh/my_profile.zsh
 eos
 
-# login shells
-sudo -u $USERNAME cat <<'eos' >> $HOME_DIR/.zprofile
+cat <<'eos' >> $HOME_DIR/.zlogin
+cd $HOME
 ZELLIJ_AUTO_ATTACH=true
 ZELLIJ_AUTO_EXIT=true
 source $XDG_CONFIG_HOME/zsh/start_zellij.zsh
@@ -73,7 +73,7 @@ eos
 sudo -u $USERNAME paru -S --noconfirm --skipreview riffdiff
 
 # rust books and documentation
-sudo -u $USERNAME cat <<'eos' > $HOME_DIR/serve_docs.sh
+cat <<'eos' > $HOME_DIR/serve_docs.sh
 #!/bin/sh
 
 PID="$(ss -tnlp | tr -s ' ' | cut -d ' ' -f 1,4,6 \
@@ -87,3 +87,5 @@ else
 fi
 eos
 chmod 755 $HOME_DIR/serve_docs.sh
+
+chown $USERNAME:$USERNAME $HOME_DIR/*
