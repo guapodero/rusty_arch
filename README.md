@@ -28,7 +28,6 @@ Relatively new, but it's an improvement over Vagrant. Some advantages:
 
 ## Base System
 
-- [LTS kernel](https://archlinux.org/packages/core/x86_64/linux-lts/)
 - [paru](https://github.com/Morganamilo/paru) AUR helper
 - [git](https://en.wikipedia.org/wiki/Git)
 - [zsh](https://en.wikipedia.org/wiki/Z_shell)

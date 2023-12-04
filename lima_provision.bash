@@ -9,22 +9,13 @@ echo "HOME_DIR: $HOME_DIR"
 echo "HOST_WORKDIR=$HOST_WORKDIR" >> /etc/environment
 hostnamectl set-hostname "${HOSTNAME#"lima-"}"
 
-# pacman
 ln -sf /usr/share/zoneinfo/$HOST_TZ /etc/localtime
 hwclock --hctosys --utc
 pacman-key --init
 pacman-key --populate
 pacman -Sy --noconfirm archlinux-keyring
-pacman -Syu --noconfirm --ignore linux
+pacman -Syu --noconfirm
 sed -i "s/#Color/Color/" /etc/pacman.conf
-
-# LTS kernel
-pacman -S --noconfirm linux-lts
-sed -i -E "s/^#?GRUB_DEFAULT=.*/GRUB_DEFAULT=saved/" /etc/default/grub
-sed -i -E "s/^#?GRUB_SAVEDEFAULT=.*/GRUB_SAVEDEFAULT=true/" /etc/default/grub
-sed -i -E "s/^#?GRUB_DISABLE_SUBMENU=.*/GRUB_DISABLE_SUBMENU=y/" /etc/default/grub
-grub-mkconfig -o /boot/grub/grub.cfg
-sed -i -E "/#IgnorePkg/a IgnorePkg = linux" /etc/pacman.conf
 
 pacman -S --noconfirm \
     git zsh starship \
@@ -59,7 +50,6 @@ eos
 
 sudo -u $USERNAME rustup default stable
 
-# paru AUR helper (depends on base-devel and cargo)
 su $USERNAME <<'eos'
 cd /tmp
 git clone https://aur.archlinux.org/paru.git
@@ -69,7 +59,6 @@ eos
 
 sudo -u $USERNAME paru -S --noconfirm --skipreview riffdiff
 
-# rust books and documentation
 cat <<'eos' > $HOME_DIR/serve_docs.sh
 #!/bin/sh
 
