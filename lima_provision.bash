@@ -36,11 +36,8 @@ sudo -k chsh -s /usr/bin/zsh $USERNAME
 usermod -u $HOST_UID $USERNAME
 groupmod -g $HOST_GID $USERNAME
 
-sudo -u $USERNAME sh -c "$(curl -fsSL https://install.ohmyz.sh/)" "" --unattended
-
 cat <<'eos' >> $HOME_DIR/.zshenv
 XDG_CONFIG_HOME=$HOME/.config
-DISABLE_LS_COLORS=true # oh-my-zsh will not write over 'ls' alias
 
 alias ls='lsd'
 alias hx='helix'

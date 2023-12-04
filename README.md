@@ -32,7 +32,6 @@ Relatively new, but it's an improvement over Vagrant. Some advantages:
 - [paru](https://github.com/Morganamilo/paru) AUR helper
 - [git](https://en.wikipedia.org/wiki/Git)
 - [zsh](https://en.wikipedia.org/wiki/Z_shell)
-- [ohmyzsh](https://ohmyz.sh/) zsh configuration framework
 - [starship](https://starship.rs/) easily customizable shell prompt
 - [lsd](https://crates.io/crates/lsd) colorized and configurable `ls` replacement
 - [helix](https://helix-editor.com/) modal editor
