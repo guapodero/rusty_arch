@@ -35,6 +35,10 @@ confirm() {
     echo # newline
 }
 
+curl -Is https://clients3.google.com > /dev/null || (
+    confirm "lima-vm isn't functional offline. try anyway?" || exit 0
+)
+
 (vm_status | grep -E "^$vm_name \w+$" > /dev/null) || (
     confirm "create VM $vm_name?"
 
@@ -68,6 +72,7 @@ eos
 (vm_status | grep "$vm_name Running" > /dev/null) || (
     confirm "resume VM $vm_name?"
     limactl start $vm_name
+    limactl shell --shell /bin/sh $vm_name <<< "~/serve_docs.sh > /dev/null 2>&1 < /dev/null"
 )
 
 limactl shell --debug --log-level debug $vm_name
