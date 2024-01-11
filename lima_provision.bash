@@ -34,6 +34,8 @@ alias ls='lsd'
 alias hx='helix'
 alias shx="sudo /usr/bin/helix -c $XDG_CONFIG_HOME/helix/config.toml"
 alias dhx="helix -c <(sed '/\[editor.lsp\]/a enable=false' $XDG_CONFIG_HOME/helix/config.toml)"
+
+path+=("$HOME/.cargo/bin")
 eos
 
 cat <<'eos' >> $HOME_DIR/.zshrc
