@@ -58,18 +58,6 @@ Offline Rust documentation at http://localhost:9306
 - to detach from it: `Ctrl o` `d`
 - the VM will remain running until you stop it with `limactl`
 
-I use [Alacritty](https://alacritty.org/) as my terminal emulator. If I close the terminal window on an open session,
-QEMU doesn't send a signal to zellij in the same way that VirtualBox did, so the `on_force_close` setting in zellij has
-no effect. To prevent myself from accidentally terminating the QEMU process with my keyboard, I disabled those key
-combinations in `~/.alacritty.yml`:
-```
-key_bindings:
-# prevent closing window by keyboard accidentally
-# https://github.com/alacritty/alacritty/issues/3426
-  - { key: Q,      mods: Command,            action: None             }
-  - { key: W,      mods: Command,            action: None             }
-```
-
 ### Example
 ```
 bin/lima_session.sh arch rust
