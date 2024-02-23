@@ -3,7 +3,7 @@ alias bak_scratch='() { $HOST_WORKDIR/bin/difow.zsh ~/scratch/$1 $HOST_WORKDIR/d
 alias bak_hctarcs='() { $HOST_WORKDIR/bin/difow.zsh $HOST_WORKDIR/data/scratch_bak/$1 ~/scratch/$1 }'
 
 bak_config() {
-    local include=(git/ helix/ lsd/ starship.toml zellij/ zsh/)
+    local include=(git/ helix/ lsd/ shellcheckrc starship.toml zellij/ zsh/)
     $HOST_WORKDIR/bin/difow.zsh \
         --exclude-from <( \
             /bin/ls -p $XDG_CONFIG_HOME \
