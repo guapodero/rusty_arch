@@ -1,6 +1,7 @@
 #!/usr/bin/env zsh
 
 EXCLUDE_NAMES=(target/ .git/ .DS_Store)
+DELETE_EXTRAS=true # extraneous files at destination are be deleted by default
 
 while [[ $# -gt 0 ]]; do
     case $1 in
@@ -17,6 +18,10 @@ while [[ $# -gt 0 ]]; do
 	          EXCLUDE_NAMES+=($(cat $2))
             shift # past argument
             shift # past value
+            ;;
+        --no-delete)
+            DELETE_EXTRAS=false
+            shift
             ;;
         -*|--*)
             echo "unknown option $1"
@@ -80,6 +85,10 @@ for deli_pth in "${rem[@]}"; do
         add=(${add/$deli_pth/})
     fi
 done
+
+if [[ $DELETE_EXTRAS == false ]]; then
+    rem=()
+fi
 
 all_sorted="$(echo "${rem[@]} ${add[@]} ${cha[@]}" | tr -d '╎' | tr -s ' ' '\n' | sort)"
 

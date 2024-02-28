@@ -1,4 +1,5 @@
 mkdir -p ~/scratch
+alias bak_slap='() { $HOST_WORKDIR/bin/difow.zsh --no-delete ~/scratch/$1 $HOST_WORKDIR/data/scratch_bak/$1 }'
 alias bak_scratch='() { $HOST_WORKDIR/bin/difow.zsh ~/scratch/$1 $HOST_WORKDIR/data/scratch_bak/$1 }'
 alias bak_hctarcs='() { $HOST_WORKDIR/bin/difow.zsh $HOST_WORKDIR/data/scratch_bak/$1 ~/scratch/$1 }'
 
