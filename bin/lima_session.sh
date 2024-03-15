@@ -70,7 +70,6 @@ eos
 (vm_status | grep "$vm_name Running" > /dev/null) || (
     confirm "resume VM $vm_name?"
     limactl start "$vm_name"
-    limactl shell --shell /bin/sh "$vm_name" <<< '$HOME/rustdoc_server.sh > /dev/null 2>&1 < /dev/null'
 )
 
 limactl shell --debug --log-level debug "$vm_name"

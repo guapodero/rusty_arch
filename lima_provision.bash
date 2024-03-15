@@ -44,6 +44,7 @@ eval "$(starship init zsh)"
 eos
 
 cat <<'eos' >> "$HOME_DIR/.zlogin"
+$HOME/rustdoc_server.sh > /dev/null
 cd $HOME
 ZELLIJ_AUTO_ATTACH=true
 ZELLIJ_AUTO_EXIT=true
