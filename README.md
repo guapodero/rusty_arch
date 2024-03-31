@@ -39,6 +39,8 @@ Relatively new, but it's an improvement over Vagrant. Some advantages:
 - [riff](https://github.com/walles/riff/) more readable `diff` formatter
 - [bat](https://github.com/sharkdp/bat) `cat` replacement
 - [skim](https://github.com/lotabout/skim) fuzzy finder
+- [gitui](https://github.com/extrawurst/gitui) user interface for git
+- [jaq](https://crates.io/crates/jaq) lightweight implementation of `jq`
 - [rustup](https://rust-lang.github.io/rustup/) stable toolchain
 - [rust-analyzer](https://blog.rust-lang.org/2022/02/21/rust-analyzer-joins-rust-org.html) LSP server
 - [clang](https://clang.llvm.org/) LSP server

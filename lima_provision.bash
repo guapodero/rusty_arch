@@ -20,7 +20,7 @@ sed -i "s/#Color/Color/" /etc/pacman.conf
 pacman -S --noconfirm \
     git zsh starship shellcheck \
     base-devel rustup rust-analyzer clang \
-    zellij lsd ripgrep bat skim helix \
+    zellij lsd ripgrep bat skim helix gitui jaq \
     cargo-make podman cross cargo-binstall httplz
 
 sudo -k chsh -s /usr/bin/zsh "$USERNAME"

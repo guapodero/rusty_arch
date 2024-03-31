@@ -19,6 +19,7 @@ export HOST_GID="$(id -g)"
 
 vm_name=$1
 if [ $# -eq 2 ]; then
+    mkdir -p /tmp/lima
     if [[ $2 == "." ]]; then
         touch /tmp/lima/zellij_session_name
     else
