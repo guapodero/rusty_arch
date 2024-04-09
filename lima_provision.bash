@@ -40,7 +40,10 @@ eos
 
 cat <<'eos' >> "$HOME_DIR/.zshrc"
 eval "$(starship init zsh)"
+# sharable customizations
 [ -e $XDG_CONFIG_HOME/zsh/my_profile.zsh ] && source $XDG_CONFIG_HOME/zsh/my_profile.zsh
+# not sharable
+[ -e $XDG_CONFIG_HOME/private_profile.zsh ] && source $XDG_CONFIG_HOME/private_profile.zsh
 eos
 
 cat <<'eos' >> "$HOME_DIR/.zlogin"
@@ -71,13 +74,6 @@ chmod 755 "$HOME_DIR/rustdoc_server.sh"
 chown "$USERNAME":"$USERNAME" "$HOME_DIR"/*
 
 su "$USERNAME" <<'eos'
-mkdir /tmp/paru
-cd $_
-curl -o paru.tar.gz https://aur.archlinux.org/cgit/aur.git/snapshot/aur-f7e9de3ede499773b7f65ac28fb86f859c538534.tar.gz
-tar -x -f paru.tar.gz --strip-components=1
-makepkg -s
+cargo install --git https://github.com/Morganamilo/paru.git
+paru -S --noconfirm --skipreview riffdiff
 eos
-cd /tmp/paru
-pacman -U --noconfirm paru-1.11.1-1-x86_64.pkg.tar.zst
-
-sudo -u "$USERNAME" paru -S --noconfirm --skipreview riffdiff

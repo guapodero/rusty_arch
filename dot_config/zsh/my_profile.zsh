@@ -1,9 +1,7 @@
 # a workspace directory which can be manually synced with a directory mounted in the host file system
-mkdir -p ~/scratch
-alias bak_slap='() { $HOST_WORKDIR/bin/difow.zsh --no-delete ~/scratch/$1 $HOST_WORKDIR/data/scratch_bak/$1 }'
-alias bak_pals='() { $HOST_WORKDIR/bin/difow.zsh --no-delete $HOST_WORKDIR/data/scratch_bak/$1 ~/scratch/$1 }'
-alias bak_scratch='() { $HOST_WORKDIR/bin/difow.zsh ~/scratch/$1 $HOST_WORKDIR/data/scratch_bak/$1 }'
-alias bak_hctarcs='() { $HOST_WORKDIR/bin/difow.zsh $HOST_WORKDIR/data/scratch_bak/$1 ~/scratch/$1 }'
+mkdir -p $HOME/scratch
+alias bak_scratch='() { $HOST_WORKDIR/bin/difow.zsh $HOME/scratch/$1 $HOST_WORKDIR/data/scratch_bak/$1 ${@:2} }'
+alias bak_hctarcs='() { $HOST_WORKDIR/bin/difow.zsh $HOST_WORKDIR/data/scratch_bak/$1 $HOME/scratch/$1 ${@:2} }'
 
 setopt auto_cd
 cdpath=($HOME/scratch)
@@ -41,3 +39,12 @@ alias git_='() { git ${@} -- . ":(exclude)Cargo.lock" }'
 autoload -U +X compinit && compinit
 autoload -U +X bashcompinit && bashcompinit
 source /usr/share/bash-completion/completions/makers
+
+zt() {
+    if [[ $# -eq 1 ]]; then
+        zellij action rename-tab $1
+    else
+        zellij action rename-tab "$(date +%H%M) $(basename $(pwd))"
+    fi
+}
+zt
