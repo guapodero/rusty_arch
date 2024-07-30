@@ -135,6 +135,10 @@ fi
 
 if [[ ! -z "$cha_pths" ]]; then
     for pth in ${cha_pths[*]}; do
+        pth_dir=$(dirname $DST$pth)
+        if [[ ! -d $pth_dir ]]; then
+            sh -xc "mkdir -p $pth_dir"
+        fi
         sh -xc "cp --update --archive --no-target-directory $SRC$pth $DST$pth"
     done
 fi

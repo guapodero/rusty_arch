@@ -18,13 +18,7 @@ computing. Programs written in Rust tend to be very enjoyable to use.
 Relatively new, but it's an improvement over Vagrant. Some advantages:
 - Easier to use.
 - Supports modern filesystems which are necessary to use `podman`.
-- Creates QEMU virtual machines, which integrate more directly with CPUs than
-  [VirtualBox 6](https://www.virtualbox.org/ticket/14217).
-
-### Use Case
-- Intel Mac (MacOS 10.15 Catalina)
-- minimal dependencies (no Homebrew, Xcode, Docker)
-- frequent offline use (not supported yet)
+- Creates QEMU virtual machines
 
 ## Base System
 

@@ -15,15 +15,22 @@ normal = "block"
 select = "underline"
 
 [editor.indent-guides]
-character = "╎"
 render = true
+character = "┊"
+skip-levels = 1
 
 [editor.lsp]
 auto-signature-help = false
 display-messages = true
 
 [editor.statusline]
-left = ["mode", "spinner", "version-control", "file-name"]
+left = ["mode", "spinner", "separator", "version-control", "file-name", "file-modification-indicator", "read-only-indicator"]
+center = []
+right = ["diagnostics", "register", "selections", "position", "file-encoding", "file-line-ending", "file-type"]
+separator = "│ "
+mode.normal = "NORMAL"
+mode.insert = "INSERT"
+mode.select = "SELECT"
 
 [keys.normal]
 "A-," = "goto_previous_buffer"
